@@ -1,12 +1,12 @@
 class MessageFactory{
-  createMessage(line){
+  createMessageModel(line){
     return {
       content: line,
       user: 'Default'
     }
   }
 
-  createDiracMessage(line){
+  createDiracMessageModel(line){
     return {
       content: line,
       user: 'Dirac'

@@ -1,81 +1,99 @@
-import fac from "../MessageFactory"
+import store from "../DiracStore"
 import questionResponder from "./DiracQuestionResponder"
-import timeFormatter from "./TimeFormatter";
-import analyzer from "./MessageAnalyzer"
+import statementResponder from "./DiracStatementResponder"
+import timeFormatter from "./TimeFormatter"
+import server from "./ServerCaller"
 
 class Dirac{
 
-  respondToSentence(message){
-    let words = analyzer.analyze(message);
-    let response = "I didn't understand the sentence."
-    switch(words[0]){
+  respondToSentence(response, message){
+    switch(message.words[0]){
       case "what":
-        response = questionResponder.what(message, words);
+        questionResponder.what(response, message);
         break;
       case "why":
-        response = questionResponder.why(message, words);
+        questionResponder.why(response, message);
         break;
       case "where":
-        response = questionResponder.where(message, words);
+        questionResponder.where(response, message);
         break;
       case "when":
-        response = questionResponder.when(message, words);
+        questionResponder.when(response, message);
         break;
       case "how":
-        response = questionResponder.how(message, words);
+        questionResponder.how(response, message);
         break;
       case "who":
-        response = questionResponder.who(message, words);
+        questionResponder.who(response, message);
+        break;
+      case "i":
+        statementResponder.I(response, message);
+        break;
+      case "my":
+        statementResponder.my(response, message);
         break;
     }
-    return response
   }
 
-  respondToTwoWords(message){
-    const words = message.content.split(' ');
-    let response = "I'm sorry, I don't respond to sentences of two words."
-    return response;
+  respondToTwoWords(response, message){
+    response.content = "I'm sorry, I don't respond to sentences of two words."
   }
 
-  respondToOneWord(word){
-    let response = "I don't understand that word."
+  respondToOneWord(response, word){
+    response.content = "I don't understand that word."
     switch(word.toLowerCase()){
       case 'greetings':
       case 'hello':
       case 'hi':
       case 'sup':
-        response = 'Hello.'
+        response.content = 'Hello.'
         break;
       case 'time':
-        response = timeFormatter.getTime();
+        response.content = timeFormatter.getTime();
         break;
       case 'date':
-      response = timeFormatter.getDate();
+        response.content = timeFormatter.getDate();
         break;
+      case 'ajax':
+        response.shouldAddMessage = false
+        server.callForOneWord(word)
+        break;
+      case 'why':
+      case 'what':
+      case 'where':
+      case 'who':
+      case 'when':
+      case 'how':
+        response.content = word + " what?"
+        break;
+      case 'shit':
+      case 'fuck':
+      case 'asshole':
+      case 'cunt':
+      case 'bitch':
+        response.content = "Mind your language."
     }
-    return response;
   }
 
   respond(message){
-    const words = message.content.split(' ');
-    var response = "You used " + words.length + " words.";
+    let response = {content: "I am sorry, I am unable to respond to that message.", shouldAddMessage: true}
 
-    switch(words.length){
+    switch(message.words.length){
       case 0: 
-        response = "Please write something"
+        response.content = "Please write something"
         break;
       case 1:
-        response = this.respondToOneWord(words[0])
+        this.respondToOneWord(response, message.words[0])
         break;
       case 2:
-        response = this.respondToTwoWords(message)
+        this.respondToTwoWords(response, message)
         break;
       default:
-        response = this.respondToSentence(message)
+        this.respondToSentence(response, message)
         break;
     }
 
-    return fac.createDiracMessage(response);
+    return response;
   }
 }
 

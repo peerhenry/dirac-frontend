@@ -1,4 +1,7 @@
 import { autorun, observable } from "mobx"
+import fac from "./MessageFactory"
+import dirac from "./Dirac/Dirac"
+import analyzer from "./Dirac/MessageAnalyzer"
 
 class DiracStore {
   @observable messages = [
@@ -12,6 +15,22 @@ class DiracStore {
 
   addMessage(message){
     this.messages.unshift(message);
+  }
+
+  registerDiracInput(input){
+    let responseMessage = fac.createDiracMessageModel(input)
+    this.addMessage(responseMessage)
+  }
+
+  dispatch(userInput){
+    let message = analyzer.analyze(userInput);
+    this.addMessage(message);
+    setTimeout(function() {
+      let response = dirac.respond(message);
+      if(response.shouldAddMessage){
+        this.registerDiracInput(response.content);
+      }
+    }.bind(this), 1000);
   }
 }
 

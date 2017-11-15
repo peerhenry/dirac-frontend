@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+const {EnvironmentPlugin} = require("webpack");
 
 module.exports = {
 
@@ -35,6 +36,16 @@ module.exports = {
   },
 
   devServer: {
-    contentBase: './public'
-  }
+    contentBase: './public',
+    proxy: {
+      '/ajax': {
+        target: 'http://localhost:3004',
+        secure: false
+      }
+    }
+  },
+
+  plugins: [
+    new EnvironmentPlugin(['NODE_ENV'])
+  ]
 }

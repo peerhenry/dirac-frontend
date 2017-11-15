@@ -2,6 +2,8 @@ import timeFormatter from "./TimeFormatter";
 
 class DiracQuestionResponder{
 
+  // private
+
   itMatches(words, question)
   {
     return words.join(" ") == question;
@@ -13,8 +15,10 @@ class DiracQuestionResponder{
     return lastWords.join(" ") == ending;
   }
 
-  what(message, formattedWords){
-    let response = "I don't know."
+  // public
+
+  what(response, message){
+    let formattedWords = message.words;
     switch(formattedWords[1])
     {
       case "are":
@@ -23,27 +27,31 @@ class DiracQuestionResponder{
       case "s":
       case "is":
         if(formattedWords.length === 4 && this.endsWith(formattedWords, "the time")){
-          response = timeFormatter.getTime();
+          response.content = timeFormatter.getTime();
+        }
+        else if(this.itMatches(formattedWords, "what is your name")){
+          response.content = "My name is Dirac."
         }
         break;
       case "was":
         // look it up
+        server.callWithMessage(message)
         break;
       case "time":
         if(this.itMatches(formattedWords, "what time is it")){
-          response = timeFormatter.getTime();
+          response.content = timeFormatter.getTime();
         }
         break;
     }
-    return response
   }
 
-  who(message, formattedWords){
-    let response = "I don't know."
+  who(response, message){
+    let formattedWords = message.words;
+    response.content = "I don't know."
     switch(formattedWords[1])
     {
       case "are":
-        if(formattedWords.length === 3 && formattedWords[2] === "you") response = "I am Dirac."
+        if(formattedWords.length === 3 && formattedWords[2] === "you") response.content = "I am Dirac."
         break;
       case "s":
       case "is":
@@ -51,31 +59,30 @@ class DiracQuestionResponder{
         // look it up
         break;
     }
-    return response
   }
 
-  why(message, formattedWords){
-    let response = "I don't know."
-    return response
+  why(response, message){
+    let formattedWords = message.words
+    response.content = "I don't know."
   }
 
-  when(message, formattedWords){
-    let response = "I don't know."
-    return response
+  when(response, message){
+    let formattedWords = message.words;
+    response.content = "I don't know."
   }
 
-  where(message, formattedWords){
-    let response = "I don't know."
-    return response
+  where(response, message){
+    let formattedWords = message.words;
+    response.content = "I don't know."
   }
 
-  how(message, formattedWords){
-    console.log('how reached: ' + JSON.stringify(formattedWords));
-    let response = "I don't know."
+  how(response, message){
+    let formattedWords = message.words;
+    response.content = "I don't know."
     switch(formattedWords[1])
     {
       case "are":
-        if(this.itMatches(formattedWords, "how are you doing")) response = "I am fine, thank you."
+        if(this.itMatches(formattedWords, "how are you doing") || this.itMatches(formattedWords, "how are you")) response.content = "I am fine, thank you."
         break;
       case "s":
       case "is":
@@ -83,7 +90,6 @@ class DiracQuestionResponder{
         // look it up
         break;
     }
-    return response
   }
 }
 

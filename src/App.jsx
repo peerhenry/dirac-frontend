@@ -1,7 +1,5 @@
 import React from "react"
 import { observer } from "mobx-react"
-import fac from "./MessageFactory"
-import dirac from "./Dirac/Dirac"
 import Message from "./Components/Message"
 
 @observer
@@ -16,12 +14,7 @@ class App extends React.Component {
     var charCode = event.which || event.keyCode;
 
     if ( charCode == '13' ) {
-      let msg = fac.createMessage(e.target.value);
-      this.props.store.addMessage(msg);
-      setTimeout(function() {
-        let response = dirac.respond(msg);
-        this.props.store.addMessage(response);
-      }.bind(this), 1000);
+      this.props.store.dispatch(e.target.value);
       e.target.value = "";
       return false;
     }
