@@ -1,5 +1,14 @@
 {
-  "ajax": {
-     "content": "I am a dummy json response!"
+  "ajaxget": {
+    "content": "I am a dummy response to an ajax get request!"
+  },
+  "ajaxpost": {
+    "content": "I am a dummy response to an ajax post request!"
+  },
+  "oneword": {
+    "ajax": "I am from the dummy oneword endpoint!"
+  },
+  "respond": {
+    "content": "I am from the dummy respond endpoint!"
   }
 }

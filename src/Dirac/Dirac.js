@@ -54,9 +54,13 @@ class Dirac{
       case 'date':
         response.content = timeFormatter.getDate();
         break;
-      case 'ajax':
+      case 'testget':
         response.shouldAddMessage = false
-        server.callForOneWord(word)
+        server.testGetRequest()
+        break;
+      case 'testpost':
+        response.shouldAddMessage = false
+        server.testPostRequest()
         break;
       case 'why':
       case 'what':
@@ -75,8 +79,12 @@ class Dirac{
     }
   }
 
+  // Dirac entry point
   respond(message){
-    let response = {content: "I am sorry, I am unable to respond to that message.", shouldAddMessage: true}
+    let response = {
+      content: "I am sorry, I am unable to respond to that message.", // default response
+      shouldAddMessage: true  // should the message be added to the store?
+    }
 
     switch(message.words.length){
       case 0: 

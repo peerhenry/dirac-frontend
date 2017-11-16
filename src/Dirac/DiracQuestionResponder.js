@@ -1,8 +1,13 @@
 import timeFormatter from "./TimeFormatter";
+import server from "./ServerCaller"
 
 class DiracQuestionResponder{
 
   // private
+  callServer(response, message){
+    server.callWithMessage(message)
+    response.shouldAddMessage = false;
+  }
 
   itMatches(words, question)
   {
@@ -32,10 +37,13 @@ class DiracQuestionResponder{
         else if(this.itMatches(formattedWords, "what is your name")){
           response.content = "My name is Dirac."
         }
+        else {
+          this.callServer(response, message)
+        }
         break;
       case "was":
-        // look it up
-        server.callWithMessage(message)
+      case "were":
+        this.callServer(response, message)
         break;
       case "time":
         if(this.itMatches(formattedWords, "what time is it")){
@@ -52,11 +60,15 @@ class DiracQuestionResponder{
     {
       case "are":
         if(formattedWords.length === 3 && formattedWords[2] === "you") response.content = "I am Dirac."
+        else{
+          this.callServer(response, message)
+        }
         break;
       case "s":
       case "is":
       case "was":
-        // look it up
+      case "were":
+        this.callServer(response, message)
         break;
     }
   }

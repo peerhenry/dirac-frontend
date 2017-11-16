@@ -2,12 +2,13 @@
   "name": "Dirac",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "dev": "webpack-dev-server --inline --hot",
-    "api": "json-server --watch db.json --port 3004"
+    "build": "set NODE_ENV=production&&webpack",
+    "builddev": "set NODE_ENV=development&&webpack",
+    "dev": "set NODE_ENV=development&&webpack-dev-server --inline --hot",
+    "api": "node server.js"
   },
   "author": "PeerHenry",
   "license": "ISC",
