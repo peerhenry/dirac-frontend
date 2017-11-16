@@ -33,7 +33,7 @@ class ServerCaller{
         store.registerDiracInput(resp.data.content)
       })
       .catch(err => {
-        store.registerDiracInput("I'm sorry, I can't seem to connect to the server in order to reply.")
+        store.registerDiracInput("I'm sorry, something appears to be going wrong when I try to connect to the server.")
         console.log(err)
       })
   }
