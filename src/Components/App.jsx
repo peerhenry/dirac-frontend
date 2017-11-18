@@ -12,8 +12,9 @@ class App extends React.Component {
   keyPress(e){
     var event = e || window.event;
     var charCode = event.which || event.keyCode;
-
+    //console.log('key press event');
     if ( charCode == '13' ) {
+      //console.log('enter event');
       this.props.store.dispatch(e.target.value);
       e.target.value = "";
       return false;
@@ -23,7 +24,8 @@ class App extends React.Component {
   render(){
     var env = process.env.NODE_ENV;
     var containerColor = '#ddd';
-    var title = (env == 'development') ? 'Dirac in development' : 'Dirac';
+    var name = this.props.store.diracData.name;
+    var title = (env == 'development') ? name + ' in development' : name;
     const mainContainerStyle = {
       width: '960px',
       paddingTop: '16px',

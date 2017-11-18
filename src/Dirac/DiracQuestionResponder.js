@@ -1,28 +1,42 @@
-import timeFormatter from "./TimeFormatter";
+import timeFormatter from "./TimeFormatter"
+import store from "../DiracStore"
 import server from "./ServerCaller"
+import matcher from "./StringMatcher"
 
 class DiracQuestionResponder{
 
   // private
-  callServer(response, message){
+  callServer(message, response){
     server.callWithMessage(message)
     response.shouldAddMessage = false;
   }
 
-  itMatches(words, question)
-  {
-    return words.join(" ") == question;
-  }
-
-  endsWith(words, ending){
-    let expLastWords = ending.toLowerCase().split(" ")
-    let lastWords = words.slice(words.length - expLastWords.length, words.length);
-    return lastWords.join(" ") == ending;
-  }
-
   // public
 
-  what(response, message){
+  respond(message, response){
+    switch(message.words[0]){
+      case "what":
+        this.what(message, response);
+        break;
+      case "why":
+        this.why(message, response);
+        break;
+      case "where":
+        this.where(message, response);
+        break;
+      case "when":
+        this.when(message, response);
+        break;
+      case "how":
+        this.how(message, response);
+        break;
+      case "who":
+        this.who(message, response);
+        break;
+    }
+  }
+
+  what(message, response){
     let formattedWords = message.words;
     switch(formattedWords[1])
     {
@@ -31,70 +45,74 @@ class DiracQuestionResponder{
         break;
       case "s":
       case "is":
-        if(formattedWords.length === 4 && this.endsWith(formattedWords, "the time")){
+        if(formattedWords.length === 4 && matcher.endsWith(formattedWords, "the time")){
           response.content = timeFormatter.getTime();
         }
-        else if(this.itMatches(formattedWords, "what is your name")){
-          response.content = "My name is Dirac."
+        else if(matcher.itMatches(formattedWords, "what is your name")){
+          response.content = "My name is " + store.diracData.name + "."
         }
         else {
-          this.callServer(response, message)
+          this.callServer(message, response)
         }
         break;
       case "was":
       case "were":
-        this.callServer(response, message)
+        this.callServer(message, response)
         break;
       case "time":
-        if(this.itMatches(formattedWords, "what time is it")){
+        if(matcher.itMatches(formattedWords, "what time is it")){
           response.content = timeFormatter.getTime();
         }
         break;
+      case "can":
+        if(message.words.length == 4 && (matcher.endsWith(message.words, "you do") || (matcher.endsWith(message.words, "you say")))){
+          response.content = "I can do simple calculations, tell the time and look stuff up on wikipedia."
+        }
     }
   }
 
-  who(response, message){
+  who(message, response){
     let formattedWords = message.words;
     response.content = "I don't know."
     switch(formattedWords[1])
     {
       case "are":
-        if(formattedWords.length === 3 && formattedWords[2] === "you") response.content = "I am Dirac."
+        if(formattedWords.length === 3 && formattedWords[2] === "you") response.content = "I am " + store.diracData.name + "."
         else{
-          this.callServer(response, message)
+          this.callServer(message, response)
         }
         break;
       case "s":
       case "is":
       case "was":
       case "were":
-        this.callServer(response, message)
+        this.callServer(message, response)
         break;
     }
   }
 
-  why(response, message){
+  why(message, response){
     let formattedWords = message.words
     response.content = "I don't know."
   }
 
-  when(response, message){
+  when(message, response){
     let formattedWords = message.words;
     response.content = "I don't know."
   }
 
-  where(response, message){
+  where(message, response){
     let formattedWords = message.words;
     response.content = "I don't know."
   }
 
-  how(response, message){
+  how(message, response){
     let formattedWords = message.words;
     response.content = "I don't know."
     switch(formattedWords[1])
     {
       case "are":
-        if(this.itMatches(formattedWords, "how are you doing") || this.itMatches(formattedWords, "how are you")) response.content = "I am fine, thank you."
+        if(matcher.itMatches(formattedWords, "how are you doing") || matcher.itMatches(formattedWords, "how are you")) response.content = "I am fine, thank you."
         break;
       case "s":
       case "is":

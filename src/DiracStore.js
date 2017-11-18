@@ -4,6 +4,8 @@ import dirac from "./Dirac/Dirac"
 import analyzer from "./Dirac/MessageAnalyzer"
 
 class DiracStore {
+
+  // data
   @observable messages = [
     {
       content: 'Say hi to Dirac, or anything else.'
@@ -13,8 +15,28 @@ class DiracStore {
     }
   ]
 
+  @observable diracData = {
+    name: 'Dirac'
+  }
+
+  @observable userData = {
+    name: ''
+  }
+
+  // methods
   addMessage(message){
-    this.messages.unshift(message);
+    this.messages.unshift(message)
+  }
+
+  dispatch(userInput){
+    let message = analyzer.analyze(userInput)
+    this.addMessage(message)
+    setTimeout(function() {
+      let response = dirac.respond(message)
+      if(response.shouldAddMessage){
+        this.registerDiracInput(response.content)
+      }
+    }.bind(this), 1000);
   }
 
   registerDiracInput(input){
@@ -22,15 +44,12 @@ class DiracStore {
     this.addMessage(responseMessage)
   }
 
-  dispatch(userInput){
-    let message = analyzer.analyze(userInput);
-    this.addMessage(message);
-    setTimeout(function() {
-      let response = dirac.respond(message);
-      if(response.shouldAddMessage){
-        this.registerDiracInput(response.content);
-      }
-    }.bind(this), 1000);
+  changeDiracName(newName){
+    this.diracData.name = newName
+  }
+
+  changeUserName(newName){
+    this.userData.name = newName
   }
 }
 

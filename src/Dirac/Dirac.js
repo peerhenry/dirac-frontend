@@ -1,51 +1,106 @@
 import store from "../DiracStore"
 import questionResponder from "./DiracQuestionResponder"
 import statementResponder from "./DiracStatementResponder"
+import commandResponder from "./DiracCommandResponder"
 import timeFormatter from "./TimeFormatter"
 import server from "./ServerCaller"
+import matcher from "./StringMatcher"
 
 class Dirac{
 
-  respondToSentence(response, message){
-    switch(message.words[0]){
-      case "what":
-        questionResponder.what(response, message);
+  constructor(){
+    this.nothingCounter = 0;
+    this.respondStop = false;
+  }
+
+  // Dirac entry point
+  respond(message){
+    let response = {
+      content: "I am sorry, I am unable to respond to that message.", // default response
+      shouldAddMessage: true  // should the message be added to the store?
+    }
+    if(this.respondStop){
+      response.content = "";
+      if(message.content == "I'm sorry" || message.content == "sorry" || message.content == "I am sorry" || message.content == "my apologies" || message.content == "I apologize"){
+        response.content = "Alright then.";
+        this.respondStop = false;
+      }
+      return response;
+    }
+    if(message.words.length == 0){
+      let reps = ["I can't respond to nothing.", "Please write something.", "You need to write something if you want me to respond."]
+      let reps2 = ["Do you want to talk to me or fool around?", "Are you just going to keep whitespacing me all day?"]
+      let reps3 = ["...", "Great.", "Good for you!", "Wow.", "Impressive."]
+      let reps4 = ["Are you enjoying yourself?", "Two can play at that game you know.", "I am going to stop responding soon."]
+      this.nothingCounter++;
+      let arr = reps;
+      if(this.nothingCounter > 5) arr = reps2;
+      if(this.nothingCounter > 6) arr = reps3;
+      if(this.nothingCounter > 9) arr = reps4;
+      response.content = arr[Math.floor(Math.random()*arr.length)];
+      if(this.nothingCounter > 12){
+        this.respondStop = true;
+        response.content = "Now you've done it!";
+      }
+      return response;
+    }
+    this.nothingCounter = 0;
+    switch(message.type){
+      case "question":
+        questionResponder.respond(message, response)
         break;
-      case "why":
-        questionResponder.why(response, message);
+      case "statement":
+        response.content = "I registered a statement"
         break;
-      case "where":
-        questionResponder.where(response, message);
+      case "command":
+        commandResponder.respond(message, response)
         break;
-      case "when":
-        questionResponder.when(response, message);
+      case "calculation":
+        let re = /\s*(-?)(\d+)(?:\s*([-+*\/])\s*((?:\s[-+])?\d+)\s*)+$/g
+        let calc = message.content.match(re)[0]
+        response.content = "I registered a calculation: " + calc + " = " + eval(calc)
         break;
-      case "how":
-        questionResponder.how(response, message);
+      case "unknown":
+        if(message.words.length == 1){
+          switch(message.words.length){
+            case 1:
+              this.respondToOneWord(message.words[0], response)
+              break;
+            case 2:
+              this.respondToTwoWords(message, response)
+              break;
+            default:
+              this.respondToSentence(message, response)
+              break;
+          }
+        }
         break;
-      case "who":
-        questionResponder.who(response, message);
-        break;
-      case "i":
-        statementResponder.I(response, message);
-        break;
-      case "my":
-        statementResponder.my(response, message);
-        break;
+    }
+
+    return response;
+  }
+
+  respondToSentence(message, response){
+    if(matcher.startsWith(message.words, "your name is")){
+      let newName = message.words.slice(3, message.words.length).join(" ")
+      store.changeDiracName(newName)
+      response.content = "Okay, I am now " + newName;
     }
   }
 
-  respondToTwoWords(response, message){
+  respondToTwoWords(message, response){
     response.content = "I'm sorry, I don't respond to sentences of two words."
   }
 
-  respondToOneWord(response, word){
+  respondToOneWord(word, response){
     response.content = "I don't understand that word."
     switch(word.toLowerCase()){
       case 'greetings':
       case 'hello':
       case 'hi':
       case 'sup':
+      case 'yo':
+      case 'eyo':
         response.content = 'Hello.'
         break;
       case 'time':
@@ -77,31 +132,6 @@ class Dirac{
       case 'bitch':
         response.content = "Mind your language."
     }
-  }
-
-  // Dirac entry point
-  respond(message){
-    let response = {
-      content: "I am sorry, I am unable to respond to that message.", // default response
-      shouldAddMessage: true  // should the message be added to the store?
-    }
-
-    switch(message.words.length){
-      case 0: 
-        response.content = "Please write something"
-        break;
-      case 1:
-        this.respondToOneWord(response, message.words[0])
-        break;
-      case 2:
-        this.respondToTwoWords(response, message)
-        break;
-      default:
-        this.respondToSentence(response, message)
-        break;
-    }
-
-    return response;
   }
 }
 
