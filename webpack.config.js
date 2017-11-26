@@ -1,5 +1,7 @@
 var webpack = require('webpack');
 
+var PROD = (process.env.NODE_ENV === 'production')
+
 module.exports = {
 
   context: __dirname,
@@ -7,7 +9,7 @@ module.exports = {
 
   output: {
     path: __dirname + '/public',
-    filename: 'bundle.js'
+    filename: PROD ? 'bundle.min.js' : 'bundle.js'
   },
 
   resolve: {
@@ -32,6 +34,8 @@ module.exports = {
   externals: {
     'react': 'React',
     'react-dom': 'ReactDOM',
+    'mobx': 'mobx',
+    'mobx-react': 'mobxReact',
     'axios': 'axios'
   },
 
@@ -46,7 +50,10 @@ module.exports = {
     ]
   },
 
-  plugins: [
+  plugins: PROD ? [
+    new webpack.EnvironmentPlugin(['NODE_ENV']),
+    new webpack.optimize.UglifyJsPlugin({minimize: true})
+  ]: [
     new webpack.EnvironmentPlugin(['NODE_ENV'])
   ]
 }

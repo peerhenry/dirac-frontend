@@ -3,6 +3,11 @@ import fac from "./MessageFactory"
 import dirac from "./Dirac/Dirac"
 import analyzer from "./Dirac/MessageAnalyzer"
 
+const RespondState = {
+  HARDCODED: 1,
+  LOGIC: 2
+}
+
 class DiracStore {
 
   // data
@@ -23,12 +28,20 @@ class DiracStore {
     name: ''
   }
 
+  respondState = RespondState.HARDCODED
+
   // methods
   addMessage(message){
     this.messages.unshift(message)
   }
 
   dispatch(userInput){
+    if(respondState === RespondState.HARDCODED){
+      this.respondHardcoded(userInput)
+    }
+  }
+
+  respondHardcoded(userInput){
     let message = analyzer.analyze(userInput)
     this.addMessage(message)
     setTimeout(function() {
@@ -36,7 +49,7 @@ class DiracStore {
       if(response.shouldAddMessage){
         this.registerDiracInput(response.content)
       }
-    }.bind(this), 1000);
+    }.bind(this), 700);
   }
 
   registerDiracInput(input){
